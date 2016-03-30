@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <vector>
 #include <iostream>
 #define D 4.4
 #define V -1.2
@@ -75,6 +76,11 @@ void copy(double *d, double *s, int n)
 	for (int i = 0; i < n; i++)
 		d[i] = s[i];
 }
+void copy(double *d, std::vector< double > &s, int n)
+{
+	for (int i = 0; i < n; i++)
+		d[i] = s[i];
+}
 double norm(double *r, int n)
 {
 	double rezult = 0;
@@ -110,7 +116,7 @@ double beta(double *r, double *tempr, int n)
 	}
 	return (rezult / rezult2);
 }
-void fillMatr(int ** Ind, double **A, double **arr, double h, int n, int m,double *F) {
+void fillMatr(int ** Ind, double **A, double **arr, double h, int n, int m, std::vector< double > &F) {
 	for (int i = n - 2; i > 0; i--) {
 		for (int j = 1; j < n - 1; j++) {
 			if ((i <= (n - 1) / 2) && (j < n - i))
@@ -137,9 +143,11 @@ void fillMatr(int ** Ind, double **A, double **arr, double h, int n, int m,doubl
 					F[Ind[i][j] - 1] += (-H / (h*h))*arr[i][j - 1];
 			}
 		}
+		writeMatr<double>(arr, n);
+		//writeMatr<double>(A, m);
 	}
 }
-double * sopryazh(double *F, double **A, int n) {
+double * sopryazh(std::vector< double > &F, double **A, int n) {
 	double * x = (double*)calloc(sizeof(double), n);
 	double * r = (double*)calloc(sizeof(double), n);
 	double * z = (double*)calloc(sizeof(double), n);
@@ -174,12 +182,11 @@ void writeToFile(double ** arr, int n,double h) {
 	}
 }
 void main() {
-	double h, **arr, **A,*F,*x;
+	double h, **arr, **A,*x;
 	int m,n,**Ind;
 	printf("ENTER ODD NUMBER: ");
 	scanf("%d", &n);
 	h = 1.0 / (n-1);
-	F = (double*)calloc(sizeof(double), n);
 	arr = (double**)calloc(sizeof(double*), n);
 	for (int i = 0; i < n; i++) {
 		arr[i] = (double*)calloc(sizeof(double), n);
@@ -190,14 +197,14 @@ void main() {
 	}
 	createMatr(arr, n, h);
 	m = QueryMatr(Ind,arr, n);
+	std::vector< double > F(m, 0);
 	A = (double**)calloc(sizeof(double*),m);
 	for (int i = 0; i < m; i++) {
 		A[i] = (double*)calloc(sizeof(double), m);
 	}
+	
 	fillMatr(Ind,A, arr, h,n, m,F);
 	x = sopryazh(F,A, m);
-	writeMatr<double>(arr, n);
 	returnToMatr(arr, x, n);
-	writeMatr<double>(arr, n);
 	writeToFile(arr, n,h);
 }
