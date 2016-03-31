@@ -143,8 +143,6 @@ void fillMatr(int ** Ind, double **A, double **arr, double h, int n, int m, std:
 					F[Ind[i][j] - 1] += (-H / (h*h))*arr[i][j - 1];
 			}
 		}
-		writeMatr<double>(arr, n);
-		//writeMatr<double>(A, m);
 	}
 }
 double * sopryazh(std::vector< double > &F, double **A, int n) {
@@ -181,6 +179,25 @@ void writeToFile(double ** arr, int n,double h) {
 		fprintf(f, "\n");
 	}
 }
+double maxSobs(double **A, int n) {
+	double *prex, *x,normVec,sobs;
+	prex = (double*)calloc(sizeof(double), n);
+	x = (double*)calloc(sizeof(double), n);
+	for (int i = 0; i<n; i++)
+		x[0] = 1;
+	while (fabs(prex[0] - x[0])>0.0000001) {
+		copy(prex, x, n);
+		for (int i = 0; i < n; i++)
+			x[i] = matric(A, prex, n, i);
+		normVec = norm(x, n);
+		sobs = x[0] / prex[0];
+		for (int i = 0; i < n; i++)
+			x[i] = x[i] / normVec;
+		writeVec(x, n);
+		writeVec(prex, n);
+	}
+	return sobs;
+}
 void main() {
 	double h, **arr, **A,*x;
 	int m,n,**Ind;
@@ -202,9 +219,10 @@ void main() {
 	for (int i = 0; i < m; i++) {
 		A[i] = (double*)calloc(sizeof(double), m);
 	}
-	
 	fillMatr(Ind,A, arr, h,n, m,F);
 	x = sopryazh(F,A, m);
 	returnToMatr(arr, x, n);
 	writeToFile(arr, n,h);
+	writeMatr(A, m);
+	printf("%lf\n",maxSobs(A, m));
 }
