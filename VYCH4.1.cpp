@@ -183,9 +183,8 @@ double maxSobs(double **A, int n) {
 	double *prex, *x,normVec,sobs;
 	prex = (double*)calloc(sizeof(double), n);
 	x = (double*)calloc(sizeof(double), n);
-	for (int i = 0; i<n; i++)
-		x[0] = 1;
-	while (fabs(prex[0] - x[0])>0.0000001) {
+	x[0] = 1;
+	while (fabs(fabs(prex[0]) - fabs(x[0]))>0.0000001) {
 		copy(prex, x, n);
 		for (int i = 0; i < n; i++)
 			x[i] = matric(A, prex, n, i);
@@ -193,10 +192,20 @@ double maxSobs(double **A, int n) {
 		sobs = x[0] / prex[0];
 		for (int i = 0; i < n; i++)
 			x[i] = x[i] / normVec;
-		writeVec(x, n);
-		writeVec(prex, n);
 	}
+	free(prex); free(x);
 	return sobs;
+}
+double minSobs(double **A, int n,double max) {
+	double **B,minB;
+	B = (double**)calloc(sizeof(double*), n);
+	for (int i = 0; i < n; i++) {
+		B[i] = (double*)calloc(sizeof(double), n);
+		copy(B[i], A[i], n);
+		B[i][i] -= max;
+	}
+	minB = maxSobs(B, n);
+	return (minB + max);
 }
 void main() {
 	double h, **arr, **A,*x;
@@ -223,6 +232,7 @@ void main() {
 	x = sopryazh(F,A, m);
 	returnToMatr(arr, x, n);
 	writeToFile(arr, n,h);
-	writeMatr(A, m);
-	printf("%lf\n",maxSobs(A, m));
+	double max = maxSobs(A, m);
+	printf("%lf\n", max);
+	printf("%lf\n", minSobs(A, m,max));
 }
